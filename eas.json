@@ -1,0 +1,31 @@
+{
+  "cli": {
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "ios": {
+        "buildConfiguration": "Debug",
+        "simulator": true
+      }
+    },
+    "preview": {
+      "developmentClient": false,
+      "distribution": "internal",
+      "ios": {
+        "buildConfiguration": "Release",
+        "simulator": false
+      }
+    },
+    "production": {
+      "developmentClient": false,
+      "distribution": "store",
+      "ios": {
+        "buildConfiguration": "Release",
+        "credentialsSource": "remote"
+      }
+    }
+  }
+}

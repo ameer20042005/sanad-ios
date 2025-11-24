@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "سند",
+    "slug": "sanad",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/appLogo.png",
+    "scheme": "sanad",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/appLogo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "buildNumber": "1.0.0",
+      "bundleIdentifier": "com.urjowan.sanad",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification",
+          "remote-notification"
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/appLogo.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-web-browser",
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/appLogo.png",
+          "color": "#DC2626",
+          "sounds": [
+            "./assets/notificationsound.mp3"
+          ],
+          "mode": "production"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "aa130eea-4f2d-4185-b0a4-59f91e9c461a"
+      }
+    },
+    "owner": "ameerwisam",
+    "notification": {
+      "icon": "./assets/appLogo.png",
+      "color": "#DC2626"
+    }
+  }
+}
