@@ -76,7 +76,7 @@ open ios/sanad.xcworkspace
 3. ✅ تأكد من إعدادات Bundle Identifier:
    ```json
    "ios": {
-     "bundleIdentifier": "com.urjowan.sanad"
+      "bundleIdentifier": "com.ameerwisam.sanad"
    }
    ```
 

@@ -19,7 +19,7 @@
     "ios": {
       "supportsTablet": true,
       "buildNumber": "1.0.0",
-      "bundleIdentifier": "com.urjowan.sanad",
+      "bundleIdentifier": "com.ameerwisam.sanad",
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification",
