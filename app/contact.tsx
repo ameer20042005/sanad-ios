@@ -142,7 +142,7 @@ export default function ContactScreen() {
           <Text style={styles.sectionTitle}>إرسال رسالة</Text>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>الاسم الكامل *</Text>
+            <Text style={styles.inputLabel}>الاسم الكامل</Text>
             <TextInput
               style={styles.input}
               placeholder="أدخل اسمك الكامل"
@@ -153,10 +153,10 @@ export default function ContactScreen() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>البريد الإلكتروني *</Text>
+            <Text style={styles.inputLabel}>البريد الإلكتروني</Text>
             <TextInput
               style={styles.input}
-              placeholder="أدخل بريدك الإلكتروني"
+              placeholder="ادخل البريد الالكتروني"
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -166,10 +166,10 @@ export default function ContactScreen() {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.inputLabel}>الرسالة *</Text>
+            <Text style={styles.inputLabel}>الرسالة</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
-              placeholder="اكتب رسالتك هنا..."
+              placeholder="اكتب رسالتك هنا"
               value={message}
               onChangeText={setMessage}
               multiline
@@ -198,10 +198,12 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    
   },
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
+    direction: 'ltr',
   },
   header: {
     flexDirection: 'row',
@@ -210,6 +212,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 20,
+    direction: 'rtl',
   },
   headerTitle: {
     fontSize: 20,
@@ -219,6 +222,7 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 20,
     paddingBottom: 40,
+    direction: 'ltr',
   },
   section: {
     marginBottom: 32,
@@ -237,7 +241,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   contactContent: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     alignItems: 'center',
     gap: 16,
   },
@@ -287,6 +291,7 @@ const styles = StyleSheet.create({
   textArea: {
     height: 120,
     textAlignVertical: 'top',
+    textAlign: 'right',
   },
   submitButton: {
     backgroundColor: '#E53E3E',

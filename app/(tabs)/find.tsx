@@ -680,6 +680,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 4,
     elevation: 1,
+    minHeight: 60,
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   pickerDisabled: {
     backgroundColor: '#F9FAFB',
@@ -687,7 +690,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   picker: {
-    height: 54,
+    height: 60,
     color: '#111827',
   },
 

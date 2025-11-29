@@ -419,9 +419,11 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#E5E7EB',
+    minHeight: 60,
+    justifyContent: 'center',
   },
   picker: {
-    height: 56,
+    height: 60,
     textAlign: 'right',
     backgroundColor: 'transparent',
   },

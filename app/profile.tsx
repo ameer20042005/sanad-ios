@@ -37,6 +37,9 @@ import {
 } from 'lucide-react-native';
 import { Switch } from 'react-native';
 
+// فصائل الدم المتاحة
+const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+
 // بيانات المحافظات والمدن العراقية
 const iraqiGovernorates = {
   'بغداد': ['الكرخ', 'الرصافة', 'الأعظمية', 'الكاظمية', 'الشعب', 'الثورة', 'الكرادة', 'المنصور', 'الدورة', 'أبو غريب', 'المحمودية', 'التاجي'],
@@ -126,7 +129,8 @@ export default function ProfileScreen() {
   const handleSave = async () => {
     // التحقق من البيانات المطلوبة
     if (!editForm.name?.trim() || !editForm.phone?.trim() || 
-        !editForm.governorate?.trim() || !editForm.city?.trim()) {
+        !editForm.governorate?.trim() || !editForm.city?.trim() ||
+        !editForm.blood_type?.trim()) {
       showSnackbar('يرجى ملء جميع الحقول المطلوبة', 'error');
       return;
     }
@@ -389,7 +393,7 @@ export default function ProfileScreen() {
                   <User size={20} color="#6B7280" />
                 </View>
                 <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>الاسم الكامل *</Text>
+                  <Text style={styles.infoLabel}>الاسم الكامل<Text style={styles.requiredStar}>*</Text></Text>
                   {editing ? (
                     <TextInput
                       style={styles.editInput}
@@ -409,7 +413,7 @@ export default function ProfileScreen() {
                   <Phone size={20} color="#6B7280" />
                 </View>
                 <View style={styles.infoContent}>
-                  <Text style={styles.infoLabel}>رقم الهاتف *</Text>
+                  <Text style={styles.infoLabel}>رقم الهاتف<Text style={styles.requiredStar}>*</Text></Text>
                   {editing ? (
                     <TextInput
                       style={styles.editInput}
@@ -422,6 +426,31 @@ export default function ProfileScreen() {
                     />
                   ) : (
                     <Text style={styles.infoValue}>{String(profile.phone || '')}</Text>
+                  )}
+                </View>
+              </View>
+
+              <View style={styles.infoItem}>
+                <View style={styles.infoIcon}>
+                  <Droplet size={20} color="#6B7280" />
+                </View>
+                <View style={styles.infoContent}>
+                  <Text style={styles.infoLabel}>فصيلة الدم</Text>
+                  {editing ? (
+                    <View style={styles.pickerContainer}>
+                      <Picker
+                        selectedValue={editForm.blood_type || ''}
+                        style={styles.picker}
+                        onValueChange={(itemValue: string) => updateFormData('blood_type', itemValue)}
+                      >
+                        <Picker.Item label="اختر فصيلة الدم" value="" color="#9CA3AF" />
+                        {bloodTypes.map((type) => (
+                          <Picker.Item key={type} label={type} value={type} />
+                        ))}
+                      </Picker>
+                    </View>
+                  ) : (
+                    <Text style={styles.infoValue}>{String(profile.blood_type || '')}</Text>
                   )}
                 </View>
               </View>
@@ -439,7 +468,7 @@ export default function ProfileScreen() {
                 <MapPin size={20} color="#6B7280" />
               </View>
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>المحافظة *</Text>
+                <Text style={styles.infoLabel}>المحافظة<Text style={styles.requiredStar}>*</Text></Text>
                 {editing ? (
                   <View style={styles.pickerContainer}>
                     <Picker
@@ -464,7 +493,7 @@ export default function ProfileScreen() {
                 <MapPin size={20} color="#6B7280" />
               </View>
               <View style={styles.infoContent}>
-                <Text style={styles.infoLabel}>المدينة *</Text>
+                <Text style={styles.infoLabel}>المدينة</Text>
                 {editing ? (
                   <View style={styles.pickerContainer}>
                     <Picker
@@ -865,7 +894,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#111827',
     marginBottom: 12,
-    textAlign: 'right',
+    textAlign: 'left',
   },
   infoCard: {
     backgroundColor: '#FFFFFF',
@@ -902,12 +931,17 @@ const styles = StyleSheet.create({
     color: '#6B7280',
     marginBottom: 4,
     textAlign: 'right',
+    paddingRight: 120,
   },
   infoValue: {
     fontSize: 16,
     fontWeight: '600',
     color: '#111827',
-    textAlign: 'right',
+    textAlign: 'left',
+  },
+  requiredStar: {
+    color: '#DC2626',
+    marginRight: 2,
   },
   editInput: {
     backgroundColor: '#F9FAFB',
@@ -984,10 +1018,12 @@ const styles = StyleSheet.create({
     borderColor: '#D1D5DB',
     borderRadius: 8,
     width: '100%',
-    minHeight: 55,
+    minHeight: 60,
+    overflow: 'hidden',
+    justifyContent: 'center',
   },
   picker: {
-    height: 55,
+    height: 60,
     color: '#111827',
     fontSize: 16,
     textAlign: 'right',
