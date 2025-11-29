@@ -4,27 +4,66 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  const missing = [
-    !supabaseUrl && 'EXPO_PUBLIC_SUPABASE_URL',
-    !supabaseKey && 'EXPO_PUBLIC_SUPABASE_ANON_KEY',
-  ]
-    .filter(Boolean)
-    .join(' و ');
+// إنشاء Supabase client بشكل آمن
+// إذا لم تكن المتغيرات موجودة، ننشئ client مع قيم افتراضية لتجنب crash عند import
+// سيتم التحقق من المتغيرات عند الاستخدام الفعلي في الكود
+const createSupabaseClient = () => {
+  if (!supabaseUrl || !supabaseKey) {
+    const missing = [
+      !supabaseUrl && 'EXPO_PUBLIC_SUPABASE_URL',
+      !supabaseKey && 'EXPO_PUBLIC_SUPABASE_ANON_KEY',
+    ]
+      .filter(Boolean)
+      .join(' و ');
 
-  throw new Error(
-    `Supabase configuration is missing. يرجى تعيين المتغيرات التالية في ملف .env: ${missing}. راجع README للحصول على الإرشادات.`
-  );
-}
+    console.warn(
+      `⚠️ Supabase configuration is missing. يرجى تعيين المتغيرات التالية في ملف .env: ${missing}. راجع README للحصول على الإرشادات.`
+    );
+    
+    // إنشاء client مع قيم افتراضية لتجنب crash
+    // سيتم التحقق من المتغيرات عند الاستخدام الفعلي
+    return createClient(
+      supabaseUrl || 'https://placeholder.supabase.co',
+      supabaseKey || 'placeholder-key',
+      {
+        auth: {
+          storage: AsyncStorage,
+          autoRefreshToken: false,
+          persistSession: false,
+          detectSessionInUrl: false,
+        },
+      }
+    );
+  }
 
-export const supabase = createClient(supabaseUrl, supabaseKey, {
-  auth: {
-    storage: AsyncStorage,
-    autoRefreshToken: false,
-    persistSession: false,
-    detectSessionInUrl: false,
-  },
-});
+  try {
+    return createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        storage: AsyncStorage,
+        autoRefreshToken: false,
+        persistSession: false,
+        detectSessionInUrl: false,
+      },
+    });
+  } catch (error) {
+    console.error('❌ خطأ في إنشاء Supabase client:', error);
+    // في حالة الخطأ، نعيد client مع قيم افتراضية
+    return createClient(
+      'https://placeholder.supabase.co',
+      'placeholder-key',
+      {
+        auth: {
+          storage: AsyncStorage,
+          autoRefreshToken: false,
+          persistSession: false,
+          detectSessionInUrl: false,
+        },
+      }
+    );
+  }
+};
+
+export const supabase = createSupabaseClient();
 
 export type Database = {
   public: {

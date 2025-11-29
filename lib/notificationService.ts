@@ -22,6 +22,12 @@ Notifications.setNotificationHandler({
  */
 export async function registerForPushNotificationsAsync() {
   try {
+    // فحص أننا على منصة مدعومة
+    if (Platform.OS === 'web') {
+      console.log('ℹ️ الإشعارات غير مدعومة على الويب');
+      return null;
+    }
+    
     if (Platform.OS === 'android') {
       // إنشاء قناة إشعارات طلبات التبرع لـ Android
       await Notifications.setNotificationChannelAsync('blood-donation-requests', {

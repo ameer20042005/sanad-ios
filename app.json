@@ -3,7 +3,7 @@
     "name": "سند",
     "slug": "sanad",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/appLogo.png",
     "scheme": "sanad",
     "userInterfaceStyle": "automatic",
@@ -22,10 +22,27 @@
       "bundleIdentifier": "com.ameerwisam.sanad",
       "infoPlist": {
         "UIBackgroundModes": [
-          "remote-notification",
           "remote-notification"
         ],
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIRequiredDeviceCapabilities": [
+          "armv7"
+        ],
+        "UIRequiresFullScreen": false,
+        "UISupportedInterfaceOrientations": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortraitUpsideDown",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ],
+        "UISupportedInterfaceOrientations~ipad": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortraitUpsideDown",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ],
+        "NSUserNotificationsUsageDescription": "نحتاج إلى صلاحية الإشعارات لإرسال تنبيهات فورية عن طلبات التبرع بالدم الجديدة",
+        "NSCameraUsageDescription": "نحتاج إلى صلاحية الكاميرا لالتقاط الصور عند الحاجة"
       }
     },
     "web": {
@@ -47,6 +64,12 @@
             "./assets/notificationsound.mp3"
           ],
           "mode": "production"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "نحتاج إلى صلاحية الكاميرا لالتقاط الصور عند الحاجة"
         }
       ]
     ],

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -7,12 +7,16 @@ import { PaperProvider, MD3LightTheme } from 'react-native-paper';
 import { useFrameworkReady } from '@/hooks/useFrameworkReady';
 import { setupRTL } from '@/lib/rtl';
 import { Platform } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import AuthNavigator from '@/components/AuthNavigator';
 import { 
   registerForPushNotificationsAsync,
   setupBackgroundNotificationHandler 
 } from '@/lib/notificationService';
+
+// منع إخفاء Splash Screen تلقائياً حتى نكون جاهزين
+SplashScreen.preventAutoHideAsync();
 
 // إضافة معالج عام للأخطاء غير المتوقعة
 if (Platform.OS !== 'web') {
@@ -52,27 +56,73 @@ const theme = {
 };
 
 export default function RootLayout() {
+  const [appIsReady, setAppIsReady] = useState(false);
   useFrameworkReady();
   
   // إعداد RTL للتطبيق بالكامل
   useEffect(() => {
-    setupRTL();
+    let mounted = true;
     
-    // إعداد Background Notification Handler (مهم للإشعارات عندما التطبيق مغلق)
-    setupBackgroundNotificationHandler();
-    
-    // تسجيل الإشعارات الفورية (Local فقط - يعمل في Expo Go)
-    registerForPushNotificationsAsync()
-      .then(result => {
-        if (result) {
-          console.log('✅ تم تسجيل الإشعارات بنجاح:', result);
-          console.log('📱 الإشعارات ستعمل حتى لو كان التطبيق مغلق');
+    const initializeApp = async () => {
+      try {
+        // إعداد RTL
+        setupRTL();
+      } catch (error: any) {
+        console.warn('⚠️ خطأ في إعداد RTL (غير حرج):', error?.message || error);
+      }
+      
+      // إعداد Background Notification Handler (مهم للإشعارات عندما التطبيق مغلق)
+      try {
+        setupBackgroundNotificationHandler();
+      } catch (error: any) {
+        console.warn('⚠️ خطأ في إعداد Background Notification Handler (غير حرج):', error?.message || error);
+      }
+      
+      // تسجيل الإشعارات الفورية (Local فقط - يعمل في Expo Go)
+      // تأخير بسيط لضمان أن التطبيق جاهز تماماً
+      setTimeout(async () => {
+        if (!mounted) return;
+        
+        try {
+          // فحص أننا على iOS/Android وليس web
+          if (Platform.OS === 'web') {
+            console.log('ℹ️ الإشعارات غير مدعومة على الويب');
+            return;
+          }
+          
+          const result = await registerForPushNotificationsAsync();
+          if (result && mounted) {
+            console.log('✅ تم تسجيل الإشعارات بنجاح:', result);
+            console.log('📱 الإشعارات ستعمل حتى لو كان التطبيق مغلق');
+          }
+        } catch (error: any) {
+          // تجاهل أخطاء Push Notifications - لا يجب أن تسبب crash
+          const errorMessage = error?.message?.toLowerCase() || '';
+          if (errorMessage.includes('permission') || errorMessage.includes('notification')) {
+            console.warn('⚠️ تحذير الإشعارات (غير حرج):', error.message);
+          } else {
+            console.warn('⚠️ خطأ في تسجيل الإشعارات (غير حرج):', error?.message || error);
+          }
         }
-      })
-      .catch(error => {
-        // تجاهل أخطاء Push Notifications في Expo Go
-        console.warn('⚠️ تحذير الإشعارات (يمكن تجاهله في Expo Go):', error.message);
-      });
+      }, 500); // تأخير 500ms لضمان أن التطبيق جاهز
+      
+      // إخفاء Splash Screen بعد تهيئة التطبيق
+      if (mounted) {
+        try {
+          await SplashScreen.hideAsync();
+          setAppIsReady(true);
+        } catch (error: any) {
+          console.warn('⚠️ خطأ في إخفاء Splash Screen (غير حرج):', error?.message || error);
+          setAppIsReady(true); // نكمل حتى لو فشل إخفاء Splash Screen
+        }
+      }
+    };
+    
+    initializeApp();
+    
+    return () => {
+      mounted = false;
+    };
     
     // إزالة keep awake مؤقتاً لتجنب الأخطاء
     // يمكن إعادة تفعيله لاحقاً عند حل المشكلة
@@ -121,8 +171,6 @@ export default function RootLayout() {
                 <Stack.Screen name="login" options={{ headerShown: false }} />
                 <Stack.Screen name="register" options={{ headerShown: false }} />
                 <Stack.Screen name="welcome" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/account-register" options={{ headerShown: false }} />
-                <Stack.Screen name="auth/forgot-password" options={{ headerShown: false }} />
                 
                 {/* الصفحات الرئيسية */}
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
