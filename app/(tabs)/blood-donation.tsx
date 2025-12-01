@@ -397,7 +397,6 @@ export default function BloodDonationListScreen() {
                 <Text style={styles.requestLocation}>
                   {request.city}، {request.governorate}
                 </Text>
-                <Text style={styles.requestPhone}>📱 {request.phone}</Text>
               </View>
 
               <View style={styles.dateContainer}>

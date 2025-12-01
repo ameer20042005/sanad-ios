@@ -602,7 +602,6 @@ export default function FindDonorScreen() {
                 
                 <View style={styles.donorInfo}>
                   <Text style={styles.donorName}>{donor.name}</Text>
-                  <Text style={styles.donorPhone}>📱{donor.phone}</Text>
                   <Text style={styles.donorCity}>
                     {donor.governorate ? `${donor.governorate} - ${donor.city}` : donor.city}
                   </Text>
