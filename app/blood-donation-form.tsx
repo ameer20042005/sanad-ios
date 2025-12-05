@@ -28,6 +28,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AdBanner from '@/components/AdBanner';
 import { TouchableOpacity } from 'react-native';
 import { sendBloodDonationRequestNotification } from '@/lib/notificationService';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import NoInternetModal from '@/components/NoInternetModal';
 
 // Iraqi governorates and their cities
 const iraqiLocations: { [key: string]: string[] } = {
@@ -66,6 +68,8 @@ export default function BloodDonationFormScreen() {
 
   const [availableCities, setAvailableCities] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [showNoInternetModal, setShowNoInternetModal] = useState(false);
+  const { hasInternetConnection } = useNetworkStatus();
 
   useEffect(() => {
     setupRTL();
@@ -125,6 +129,12 @@ export default function BloodDonationFormScreen() {
   };
 
   const handleSubmit = async () => {
+    // التحقق من الاتصال بالإنترنت
+    if (!(await hasInternetConnection())) {
+      setShowNoInternetModal(true);
+      return;
+    }
+
     // ✅ الحماية الأولى: منع الضيوف فوراً
     if (isGuest) {
       Alert.alert(
@@ -351,6 +361,10 @@ export default function BloodDonationFormScreen() {
         </Card.Content>
       </Card>
       </ScrollView>
+      <NoInternetModal
+        visible={showNoInternetModal}
+        onClose={() => setShowNoInternetModal(false)}
+      />
     </SafeAreaView>
   );
 }

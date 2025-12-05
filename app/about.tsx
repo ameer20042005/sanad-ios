@@ -40,10 +40,16 @@ export default function AboutScreen() {
   const appVersion = '15.2.0';
   const developers = [
     {
+      name: 'الدكتور ذو الفقار حسين منديل',
+      role: 'الدكتور المشرف على التطبيق',
+      email: '',
+      phone: '07711768905',
+    },
+    {
       name: 'المهندس امير وسام',
       role: 'مطور التطبيق',
       email: 'ameer20051975@gmail.com',
-      phone: '9647811109151+',
+      phone: '07811109151',
     }
   ];
 
@@ -379,10 +385,11 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   developerInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
     width: '100%',
+    marginBottom: 8,
   },
   developerName: {
     fontSize: 16,
@@ -395,6 +402,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
     textAlign: 'left',
+    marginTop: 2,
   },
   developerPhone: {
     fontSize: 14,

@@ -31,9 +31,9 @@ import {
   setupNotificationClickHandler 
 } from '@/lib/notificationService';
 
-// Enable RTL support
+// Enable RTL support (optional - follows system settings)
 I18nManager.allowRTL(true);
-I18nManager.forceRTL(true);
+// Removed forceRTL to make RTL optional
 
 interface BloodDonationRequest {
   id: string;

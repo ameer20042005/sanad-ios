@@ -12,11 +12,15 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import NoInternetModal from '@/components/NoInternetModal';
 
 export default function AuthScreen() {
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showNoInternetModal, setShowNoInternetModal] = useState(false);
   const { signInWithPhone, continueAsGuest } = useAuth();
+  const { hasInternetConnection } = useNetworkStatus();
   const handleGuest = async () => {
     try {
       console.log('🔵 بدء التصفح كضيف...');
@@ -38,6 +42,12 @@ export default function AuthScreen() {
 
 
   const handleAuth = async () => {
+    // التحقق من الاتصال بالإنترنت
+    if (!(await hasInternetConnection())) {
+      setShowNoInternetModal(true);
+      return;
+    }
+
     if (!phone) {
       Alert.alert('خطأ', 'يرجى إدخال رقم الهاتف');
       return;
@@ -130,7 +140,13 @@ export default function AuthScreen() {
             <View style={styles.bottomButtons}>
               <TouchableOpacity
                 style={styles.registerButton}
-                onPress={() => router.push('/register')}
+                onPress={async () => {
+                  if (!(await hasInternetConnection())) {
+                    setShowNoInternetModal(true);
+                    return;
+                  }
+                  router.push('/register');
+                }}
               >
                 <Text style={styles.registerButtonText}>
                   لا تملك حساب؟ سجل كمتبرع
@@ -147,6 +163,10 @@ export default function AuthScreen() {
           </View>
         </View>
       </View>
+      <NoInternetModal
+        visible={showNoInternetModal}
+        onClose={() => setShowNoInternetModal(false)}
+      />
     </SafeAreaView>
   );
 }

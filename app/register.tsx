@@ -19,6 +19,8 @@ import ContactTimePicker from '@/components/ContactTimePicker';
 import TimePreview from '@/components/TimePreview';
 import NavigationHelper from '@/lib/navigationHelper';
 import AuthManager from '@/lib/authManager';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import NoInternetModal from '@/components/NoInternetModal';
 
 const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -63,6 +65,8 @@ export default function RegisterScreen() {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarType, setSnackbarType] = useState<'success' | 'error'>('success');
+  const [showNoInternetModal, setShowNoInternetModal] = useState(false);
+  const { hasInternetConnection } = useNetworkStatus();
 
   // دالة لإظهار رسائل التنبيه
   const showSnackbar = (message: string, type: 'success' | 'error' = 'success') => {
@@ -114,6 +118,12 @@ export default function RegisterScreen() {
 
   // دالة التسجيل
   const handleRegister = async () => {
+    // التحقق من الاتصال بالإنترنت
+    if (!(await hasInternetConnection())) {
+      setShowNoInternetModal(true);
+      return;
+    }
+
     // التحقق من صحة البيانات
     const validationError = validateForm();
     if (validationError) {
@@ -376,6 +386,12 @@ export default function RegisterScreen() {
       >
         <Text style={styles.snackbarText}>{snackbarMessage}</Text>
       </Snackbar>
+
+      {/* نافذة عدم الاتصال */}
+      <NoInternetModal
+        visible={showNoInternetModal}
+        onClose={() => setShowNoInternetModal(false)}
+      />
     </SafeAreaView>
   );
 }

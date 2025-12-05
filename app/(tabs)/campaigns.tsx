@@ -21,6 +21,8 @@ import {
   listenToIncomingNotifications,
   setupBackgroundNotificationHandler
 } from '@/lib/notificationService';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import NoInternetModal from '@/components/NoInternetModal';
 
 interface Campaign {
   id: string;
@@ -39,8 +41,17 @@ interface Campaign {
 export default function CampaignsScreen() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showNoInternetModal, setShowNoInternetModal] = useState(false);
+  const { hasInternetConnection } = useNetworkStatus();
 
   const fetchCampaigns = async () => {
+    // التحقق من الاتصال بالإنترنت
+    if (!(await hasInternetConnection())) {
+      setShowNoInternetModal(true);
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('donation_campaigns')
@@ -248,6 +259,10 @@ export default function CampaignsScreen() {
         )}
       </View>
       </ScrollView>
+      <NoInternetModal
+        visible={showNoInternetModal}
+        onClose={() => setShowNoInternetModal(false)}
+      />
     </SafeAreaView>
   );
 }

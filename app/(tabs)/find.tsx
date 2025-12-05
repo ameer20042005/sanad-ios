@@ -18,6 +18,8 @@ import { createClient } from '@supabase/supabase-js';
 import { ArrowLeft, Search, Heart, MapPin, Phone, MessageCircle } from 'lucide-react-native';
 import AdBanner from '@/components/AdBanner';
 import NavigationHelper from '@/lib/navigationHelper';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import NoInternetModal from '@/components/NoInternetModal';
 
 const bloodTypes = ['جميع الأنواع', 'A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
@@ -223,6 +225,8 @@ export default function FindDonorScreen() {
   const [availableCities, setAvailableCities] = useState<string[]>(['جميع المدن']);
   const [donors, setDonors] = useState<Donor[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showNoInternetModal, setShowNoInternetModal] = useState(false);
+  const { hasInternetConnection } = useNetworkStatus();
 
   // دالة لتحديث المدن بناءً على المحافظة المختارة
   const handleProvinceChange = (province: string) => {
@@ -239,6 +243,12 @@ export default function FindDonorScreen() {
   };
 
   const searchDonors = async () => {
+    // التحقق من الاتصال بالإنترنت
+    if (!(await hasInternetConnection())) {
+      setShowNoInternetModal(true);
+      return;
+    }
+
     setLoading(true);
     
     try {
@@ -618,6 +628,10 @@ export default function FindDonorScreen() {
         </View>
       </View>
       </ScrollView>
+      <NoInternetModal
+        visible={showNoInternetModal}
+        onClose={() => setShowNoInternetModal(false)}
+      />
     </SafeAreaView>
   );
 }
