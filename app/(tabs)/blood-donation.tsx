@@ -30,10 +30,12 @@ import {
   sendBloodDonationRequestNotification,
   setupNotificationClickHandler 
 } from '@/lib/notificationService';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import NoInternetModal from '@/components/NoInternetModal';
 
-// Enable RTL support (optional - follows system settings)
+// Enable RTL support (forced)
 I18nManager.allowRTL(true);
-// Removed forceRTL to make RTL optional
+I18nManager.forceRTL(true);
 
 interface BloodDonationRequest {
   id: string;
@@ -52,6 +54,8 @@ export default function BloodDonationListScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [showNoInternetModal, setShowNoInternetModal] = useState(false);
+  const { hasInternetConnection } = useNetworkStatus();
 
   useEffect(() => {
     setupRTL();
@@ -193,6 +197,12 @@ export default function BloodDonationListScreen() {
           text: 'حذف',
           style: 'destructive',
           onPress: async () => {
+            // التحقق من الاتصال بالإنترنت
+            if (!(await hasInternetConnection())) {
+              setShowNoInternetModal(true);
+              return;
+            }
+
             try {
               // التحقق من تسجيل الدخول أولاً
               const { profile } = await AuthManager.getCurrentUser();
@@ -407,6 +417,10 @@ export default function BloodDonationListScreen() {
         </View>
       )}
       </ScrollView>
+      <NoInternetModal
+        visible={showNoInternetModal}
+        onClose={() => setShowNoInternetModal(false)}
+      />
     </SafeAreaView>
   );
 }

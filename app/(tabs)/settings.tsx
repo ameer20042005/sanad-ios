@@ -28,6 +28,8 @@ import { supabase } from '@/lib/supabase';
 import NavigationHelper from '@/lib/navigationHelper';
 import AuthManager from '@/lib/authManager';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import NoInternetModal from '@/components/NoInternetModal';
 
 export default function SettingsScreen() {
   const { profile, isGuest } = useAuth();
@@ -36,6 +38,8 @@ export default function SettingsScreen() {
     hasDonorProfile: boolean;
     loading: boolean;
   }>({ isLoggedIn: false, hasDonorProfile: false, loading: true });
+  const [showNoInternetModal, setShowNoInternetModal] = useState(false);
+  const { hasInternetConnection } = useNetworkStatus();
 
   // مسح تلقائي للبيانات القديمع
   useEffect(() => {
@@ -109,6 +113,12 @@ export default function SettingsScreen() {
   };
 
   const handleDeleteMyRequests = async () => {
+    // التحقق من الاتصال بالإنترنت
+    if (!(await hasInternetConnection())) {
+      setShowNoInternetModal(true);
+      return;
+    }
+
     try {
       const { profile } = await AuthManager.getCurrentUser();
       
@@ -148,6 +158,12 @@ export default function SettingsScreen() {
             text: 'حذف طلباتي',
             style: 'destructive',
             onPress: async () => {
+              // التحقق من الاتصال مرة أخرى قبل الحذف
+              if (!(await hasInternetConnection())) {
+                setShowNoInternetModal(true);
+                return;
+              }
+
               try {
                 const { error } = await supabase
                   .from('blood_donation_requests')
@@ -322,6 +338,10 @@ export default function SettingsScreen() {
         ))}
       </View>
       </ScrollView>
+      <NoInternetModal
+        visible={showNoInternetModal}
+        onClose={() => setShowNoInternetModal(false)}
+      />
     </SafeAreaView>
   );
 }

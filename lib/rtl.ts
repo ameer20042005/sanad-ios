@@ -2,13 +2,12 @@ import { I18nManager } from 'react-native';
 
 /**
  * إعدادات دعم اللغة العربية و RTL
- * RTL اختياري - يتبع إعدادات النظام واللغة
+ * RTL إجباري دائماً
  */
 export const setupRTL = () => {
-  // السماح بدعم RTL (بدون إجبار)
+  // تفعيل دعم RTL بشكل إجباري
   I18nManager.allowRTL(true);
-  // لا نستخدم forceRTL - نترك النظام يقرر بناءً على اللغة
-  // I18nManager.forceRTL(true); // تم إزالة الإجبار
+  I18nManager.forceRTL(true);
 };
 
 /**

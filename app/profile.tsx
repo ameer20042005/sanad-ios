@@ -36,6 +36,8 @@ import {
   ToggleRight,
 } from 'lucide-react-native';
 import { Switch } from 'react-native';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import NoInternetModal from '@/components/NoInternetModal';
 
 // فصائل الدم المتاحة
 const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
@@ -70,6 +72,8 @@ export default function ProfileScreen() {
   const [snackbarVisible, setSnackbarVisible] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarType, setSnackbarType] = useState<'success' | 'error'>('success');
+  const [showNoInternetModal, setShowNoInternetModal] = useState(false);
+  const { hasInternetConnection } = useNetworkStatus();
 
   // تحديث النموذج عند تغيير البروفايل
   useEffect(() => {
@@ -127,6 +131,12 @@ export default function ProfileScreen() {
 
   // حفظ التغييرات
   const handleSave = async () => {
+    // التحقق من الاتصال بالإنترنت
+    if (!(await hasInternetConnection())) {
+      setShowNoInternetModal(true);
+      return;
+    }
+
     // التحقق من البيانات المطلوبة
     if (!editForm.name?.trim() || !editForm.phone?.trim() || 
         !editForm.governorate?.trim() || !editForm.city?.trim() ||
@@ -199,6 +209,12 @@ export default function ProfileScreen() {
   // تغيير حالة الاستعداد للتبرع
   const toggleAvailability = async () => {
     if (!profile) return;
+    
+    // التحقق من الاتصال بالإنترنت
+    if (!(await hasInternetConnection())) {
+      setShowNoInternetModal(true);
+      return;
+    }
     
     const currentAvailability = (profile as any).is_active !== false;
     const newAvailability = !currentAvailability;
@@ -695,6 +711,12 @@ export default function ProfileScreen() {
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
+
+      {/* نافذة عدم الاتصال */}
+      <NoInternetModal
+        visible={showNoInternetModal}
+        onClose={() => setShowNoInternetModal(false)}
+      />
 
       {/* Snackbar */}
       <Snackbar
