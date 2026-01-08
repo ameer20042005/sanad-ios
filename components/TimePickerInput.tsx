@@ -91,7 +91,7 @@ export default function TimePickerInput({
   
   // تحديد النص المعروض (12 ساعة فقط)
   const getDisplayText = () => {
-    if (!currentTimeOption) return placeholder;
+    if (!value || !currentTimeOption) return placeholder;
     return currentTimeOption.label12;
   };
 
@@ -225,7 +225,7 @@ export default function TimePickerInput({
             <View style={styles.previewContainer}>
               <Text style={styles.previewLabel}>الوقت المحدد:</Text>
               <Text style={styles.previewValue}>
-                {timeOptions.find(opt => opt.value === tempSelection)?.label12}
+                {timeOptions.find(opt => opt.value === tempSelection)?.label12 || 'غير محدد'}
               </Text>
             </View>
           </View>

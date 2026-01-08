@@ -26,7 +26,7 @@
         ],
         "ITSAppUsesNonExemptEncryption": false,
         "UIRequiredDeviceCapabilities": [
-          "armv7"
+          "arm64"
         ],
         "UIRequiresFullScreen": false,
         "UISupportedInterfaceOrientations": [
