@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, Button, Snackbar } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
+import ListPicker from '@/components/ListPicker';
 import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { Droplet, User, Phone, MapPin, ArrowLeft } from 'lucide-react-native';
@@ -238,65 +238,39 @@ export default function RegisterScreen() {
             </View>
 
             {/* فصيلة الدم */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>فصيلة الدم</Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={formData.bloodType}
-                  style={styles.picker}
-                  onValueChange={(itemValue: string) => updateFormData('bloodType', itemValue)}
-                >
-                  {bloodTypes.map((type) => (
-                    <Picker.Item key={type} label={type} value={type} />
-                  ))}
-                </Picker>
-              </View>
-            </View>
+            <ListPicker
+              label="فصيلة الدم"
+              value={formData.bloodType}
+              options={bloodTypes.map(type => ({ label: type, value: type }))}
+              onChange={(value) => updateFormData('bloodType', value)}
+              title="اختر فصيلة الدم"
+            />
 
             {/* المحافظة */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>المحافظة</Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={formData.governorate}
-                  style={styles.picker}
-                  onValueChange={(itemValue: string) => updateFormData('governorate', itemValue)}
-                >
-                  <Picker.Item label="اختر المحافظة" value="" color="#9CA3AF" />
-                  {Object.keys(iraqiGovernorates).map((governorate) => (
-                    <Picker.Item key={governorate} label={governorate} value={governorate} />
-                  ))}
-                </Picker>
-              </View>
-            </View>
+            <ListPicker
+              label="المحافظة"
+              value={formData.governorate}
+              placeholder="اختر المحافظة"
+              options={Object.keys(iraqiGovernorates).map(gov => ({ label: gov, value: gov }))}
+              onChange={(value) => updateFormData('governorate', value)}
+              title="اختر المحافظة"
+            />
 
             {/* المدينة */}
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>المدينة</Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={formData.city}
-                  style={[
-                    styles.picker,
-                    !formData.governorate && styles.disabledPicker
-                  ]}
-                  onValueChange={(itemValue: string) => updateFormData('city', itemValue)}
-                  enabled={!!formData.governorate}
-                >
-                  <Picker.Item 
-                    label={formData.governorate ? "اختر المدينة" : "اختر المحافظة أولاً"} 
-                    value="" 
-                    color="#9CA3AF" 
-                  />
-                  {formData.governorate && iraqiGovernorates[formData.governorate as keyof typeof iraqiGovernorates]?.map((city) => (
-                    <Picker.Item key={city} label={city} value={city} />
-                  ))}
-                </Picker>
-              </View>
-              {!formData.governorate && (
-                <Text style={styles.helperText}>يرجى اختيار المحافظة أولاً</Text>
-              )}
-            </View>
+            <ListPicker
+              label="المدينة"
+              value={formData.city}
+              placeholder={formData.governorate ? "اختر المدينة" : "اختر المحافظة أولاً"}
+              options={formData.governorate && iraqiGovernorates[formData.governorate as keyof typeof iraqiGovernorates]
+                ? iraqiGovernorates[formData.governorate as keyof typeof iraqiGovernorates].map(city => ({ label: city, value: city }))
+                : []}
+              onChange={(value) => updateFormData('city', value)}
+              disabled={!formData.governorate}
+              title="اختر المدينة"
+            />
+            {!formData.governorate && (
+              <Text style={styles.helperText}>يرجى اختيار المحافظة أولاً</Text>
+            )}
 
             {/* أوقات الاتصال المفضلة */}
             <View style={styles.inputContainer}>

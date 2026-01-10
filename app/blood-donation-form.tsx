@@ -16,7 +16,7 @@ import {
   Surface,
   useTheme,
 } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
+import ListPicker from '@/components/ListPicker';
 import { supabase } from '@/lib/supabase';
 import { setupRTL } from '@/lib/rtl';
 import AuthManager from '@/lib/authManager';
@@ -300,53 +300,35 @@ export default function BloodDonationFormScreen() {
           </View>
 
           {/* Governorate Picker */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.pickerLabel}>المحافظة</Text>
-            <Surface style={styles.pickerContainer} elevation={1}>
-              <Picker
-                selectedValue={formData.governorate}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, governorate: value }))}
-                style={styles.picker}>
-                <Picker.Item label="اختر المحافظة" value="" />
-                {Object.keys(iraqiLocations).map((gov) => (
-                  <Picker.Item key={gov} label={gov} value={gov} />
-                ))}
-              </Picker>
-            </Surface>
-          </View>
+          <ListPicker
+            label="المحافظة"
+            value={formData.governorate}
+            placeholder="اختر المحافظة"
+            options={Object.keys(iraqiLocations).map(gov => ({ label: gov, value: gov }))}
+            onChange={(value: string) => setFormData(prev => ({ ...prev, governorate: value }))}
+            title="اختر المحافظة"
+          />
 
           {/* City Picker */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.pickerLabel}>المدينة</Text>
-            <Surface style={styles.pickerContainer} elevation={1}>
-              <Picker
-                selectedValue={formData.city}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, city: value }))}
-                style={styles.picker}
-                enabled={!!formData.governorate}>
-                <Picker.Item label="اختر المدينة" value="" />
-                {availableCities.map((city) => (
-                  <Picker.Item key={city} label={city} value={city} />
-                ))}
-              </Picker>
-            </Surface>
-          </View>
+          <ListPicker
+            label="المدينة"
+            value={formData.city}
+            placeholder="اختر المدينة"
+            options={availableCities.map(city => ({ label: city, value: city }))}
+            onChange={(value: string) => setFormData(prev => ({ ...prev, city: value }))}
+            disabled={!formData.governorate}
+            title="اختر المدينة"
+          />
 
           {/* Blood Type Picker */}
-          <View style={styles.inputContainer}>
-            <Text style={styles.pickerLabel}>فصيلة الدم</Text>
-            <Surface style={styles.pickerContainer} elevation={1}>
-              <Picker
-                selectedValue={formData.bloodType}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, bloodType: value }))}
-                style={styles.picker}>
-                <Picker.Item label="اختر فصيلة الدم" value="" />
-                {bloodTypes.map((type) => (
-                  <Picker.Item key={type} label={type} value={type} />
-                ))}
-              </Picker>
-            </Surface>
-          </View>
+          <ListPicker
+            label="فصيلة الدم"
+            value={formData.bloodType}
+            placeholder="اختر فصيلة الدم"
+            options={bloodTypes.map(type => ({ label: type, value: type }))}
+            onChange={(value: string) => setFormData(prev => ({ ...prev, bloodType: value }))}
+            title="اختر فصيلة الدم"
+          />
 
           {/* Submit Button */}
           <Button

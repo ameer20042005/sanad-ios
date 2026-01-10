@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Card, Button, Snackbar } from 'react-native-paper';
-import { Picker } from '@react-native-picker/picker';
+import ListPicker from '@/components/ListPicker';
 import { router } from 'expo-router';
 import { useAuth } from '@/contexts/AuthContext';
 import { DonorProfile } from '@/lib/supabase';
@@ -453,18 +453,14 @@ export default function ProfileScreen() {
                 <View style={styles.infoContent}>
                   <Text style={styles.infoLabel}>فصيلة الدم</Text>
                   {editing ? (
-                    <View style={styles.pickerContainer}>
-                      <Picker
-                        selectedValue={editForm.blood_type || ''}
-                        style={styles.picker}
-                        onValueChange={(itemValue: string) => updateFormData('blood_type', itemValue)}
-                      >
-                        <Picker.Item label="اختر فصيلة الدم" value="" color="#9CA3AF" />
-                        {bloodTypes.map((type) => (
-                          <Picker.Item key={type} label={type} value={type} />
-                        ))}
-                      </Picker>
-                    </View>
+                    <ListPicker
+                      label="فصيلة الدم"
+                      value={editForm.blood_type || ''}
+                      placeholder="اختر فصيلة الدم"
+                      options={bloodTypes.map(type => ({ label: type, value: type }))}
+                      onChange={(itemValue: string) => updateFormData('blood_type', itemValue)}
+                      title="اختر فصيلة الدم"
+                    />
                   ) : (
                     <Text style={styles.infoValue}>{String(profile.blood_type || '')}</Text>
                   )}
@@ -486,18 +482,14 @@ export default function ProfileScreen() {
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>المحافظة<Text style={styles.requiredStar}>*</Text></Text>
                 {editing ? (
-                  <View style={styles.pickerContainer}>
-                    <Picker
-                      selectedValue={editForm.governorate || ''}
-                      style={styles.picker}
-                      onValueChange={(itemValue: string) => updateFormData('governorate', itemValue)}
-                    >
-                      <Picker.Item label="اختر المحافظة" value="" color="#9CA3AF" />
-                      {Object.keys(iraqiGovernorates).map((governorate) => (
-                        <Picker.Item key={governorate} label={governorate} value={governorate} />
-                      ))}
-                    </Picker>
-                  </View>
+                  <ListPicker
+                    label="المحافظة"
+                    value={editForm.governorate || ''}
+                    placeholder="اختر المحافظة"
+                    options={Object.keys(iraqiGovernorates).map(gov => ({ label: gov, value: gov }))}
+                    onChange={(itemValue: string) => updateFormData('governorate', itemValue)}
+                    title="اختر المحافظة"
+                  />
                 ) : (
                   <Text style={styles.infoValue}>{String(profile.governorate || '')}</Text>
                 )}
@@ -511,26 +503,17 @@ export default function ProfileScreen() {
               <View style={styles.infoContent}>
                 <Text style={styles.infoLabel}>المدينة</Text>
                 {editing ? (
-                  <View style={styles.pickerContainer}>
-                    <Picker
-                      selectedValue={editForm.city || ''}
-                      style={[
-                        styles.picker,
-                        !editForm.governorate && styles.disabledPicker
-                      ]}
-                      onValueChange={(itemValue: string) => updateFormData('city', itemValue)}
-                      enabled={!!editForm.governorate}
-                    >
-                      <Picker.Item 
-                        label={editForm.governorate ? "اختر المدينة" : "اختر المحافظة أولاً"} 
-                        value="" 
-                        color="#9CA3AF" 
-                      />
-                      {editForm.governorate && iraqiGovernorates[editForm.governorate as keyof typeof iraqiGovernorates]?.map((city) => (
-                        <Picker.Item key={city} label={city} value={city} />
-                      ))}
-                    </Picker>
-                  </View>
+                  <ListPicker
+                    label="المدينة"
+                    value={editForm.city || ''}
+                    placeholder={editForm.governorate ? "اختر المدينة" : "اختر المحافظة أولاً"}
+                    options={editForm.governorate && iraqiGovernorates[editForm.governorate as keyof typeof iraqiGovernorates]
+                      ? iraqiGovernorates[editForm.governorate as keyof typeof iraqiGovernorates].map(city => ({ label: city, value: city }))
+                      : []}
+                    onChange={(itemValue: string) => updateFormData('city', itemValue)}
+                    disabled={!editForm.governorate}
+                    title="اختر المدينة"
+                  />
                 ) : (
                   <Text style={styles.infoValue}>{String(profile.city || '')}</Text>
                 )}
@@ -780,6 +763,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   header: {
+    direction: 'ltr',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -909,7 +893,7 @@ const styles = StyleSheet.create({
   },
   section: {
     marginHorizontal: 16,
-    marginVertical: 8,
+    marginVertical: 10,
   },
   sectionTitle: {
     fontSize: 18,
@@ -921,7 +905,7 @@ const styles = StyleSheet.create({
   infoCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    padding: 16,
+    padding: 14,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -934,26 +918,26 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#F3F4F6',
+    gap: 10,
   },
   infoIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#F3F4F6',
     justifyContent: 'center',
     alignItems: 'center',
-    marginLeft: 12,
   },
   infoContent: {
     flex: 1,
-    alignItems: 'flex-end',
+    alignItems: 'stretch',
   },
   infoLabel: {
+    direction: 'ltr',
     fontSize: 14,
     color: '#6B7280',
-    marginBottom: 4,
+    marginBottom: 6,
     textAlign: 'right',
-    paddingRight: 120,
   },
   infoValue: {
     fontSize: 16,

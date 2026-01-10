@@ -11,7 +11,7 @@ import {
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Picker } from '@react-native-picker/picker';
+import ListPicker from '@/components/ListPicker';
 import { router } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 import { createClient } from '@supabase/supabase-js';
@@ -488,16 +488,13 @@ export default function FindDonorScreen() {
               <Heart size={20} color="#E53E3E" />
               <Text style={styles.fieldLabel}>اختر فصيلة الدم</Text>
             </View>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={bloodType}
-                onValueChange={setBloodType}
-                style={styles.picker}>
-                {bloodTypes.map((type) => (
-                  <Picker.Item key={type} label={type} value={type} />
-                ))}
-              </Picker>
-            </View>
+            <ListPicker
+              label="فصيلة الدم"
+              value={bloodType}
+              options={bloodTypes.map(type => ({ label: type, value: type }))}
+              onChange={setBloodType}
+              title="اختر فصيلة الدم"
+            />
           </View>
 
           <View style={styles.fieldContainer}>
@@ -505,16 +502,13 @@ export default function FindDonorScreen() {
               <MapPin size={20} color="#10B981" />
               <Text style={styles.fieldLabel}>المحافظة</Text>
             </View>
-            <View style={styles.pickerContainer}>
-              <Picker
-                selectedValue={location}
-                onValueChange={handleProvinceChange}
-                style={styles.picker}>
-                {iraqiProvinces.map((province) => (
-                  <Picker.Item key={province} label={province} value={province} />
-                ))}
-              </Picker>
-            </View>
+            <ListPicker
+              label="المحافظة"
+              value={location}
+              options={iraqiProvinces.map(province => ({ label: province, value: province }))}
+              onChange={handleProvinceChange}
+              title="اختر المحافظة"
+            />
           </View>
 
           <View style={styles.fieldContainer}>
@@ -524,20 +518,14 @@ export default function FindDonorScreen() {
                 {location === 'جميع المحافظات' ? 'اختر المحافظة أولاً' : 'اختر المدينة'}
               </Text>
             </View>
-            <View style={[
-              styles.pickerContainer,
-              location === 'جميع المحافظات' && styles.pickerDisabled
-            ]}>
-              <Picker
-                selectedValue={selectedCity}
-                onValueChange={setSelectedCity}
-                style={styles.picker}
-                enabled={location !== 'جميع المحافظات'}>
-                {availableCities.map((city) => (
-                  <Picker.Item key={city} label={city} value={city} />
-                ))}
-              </Picker>
-            </View>
+            <ListPicker
+              label="المدينة"
+              value={selectedCity}
+              options={availableCities.map(city => ({ label: city, value: city }))}
+              onChange={setSelectedCity}
+              disabled={location === 'جميع المحافظات'}
+              title="اختر المدينة"
+            />
           </View>
 
           <TouchableOpacity
@@ -674,13 +662,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginBottom: 8,
-    
   },
   fieldLabel: {
     fontSize: 16,
     fontWeight: '600',
     color: '#374151',
-    textAlign: 'left',
+    textAlign: 'right',
   },
   pickerContainer: {
     backgroundColor: '#FFFFFF',
@@ -704,6 +691,14 @@ const styles = StyleSheet.create({
   },
   picker: {
     height: 60,
+    width: '100%',
+    color: '#111827',
+    textAlign: 'right',
+  },
+  pickerItem: {
+    fontSize: 16,
+    height: 60,
+    textAlign: 'right',
     color: '#111827',
   },
 

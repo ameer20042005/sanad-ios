@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
   inputContent: {
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
+    flexDirection: 'row-reverse', // دائماً من اليمين لليسار للعربية
     alignItems: 'center',
     gap: 14,
   },
@@ -272,20 +272,20 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     flex: 1,
-    alignItems: I18nManager.isRTL ? 'flex-start' : 'flex-end',
+    alignItems: 'flex-end', // دائماً من اليمين للعربية
   },
   label: {
     fontSize: 14,
     color: '#6B7280',
     marginBottom: 4,
-    textAlign: I18nManager.isRTL ? 'left' : 'right',
+    textAlign: 'right', // دائماً من اليمين للعربية
     fontWeight: '500',
   },
   valueText: {
     fontSize: 17,
     fontWeight: '700',
     color: '#111827',
-    textAlign: I18nManager.isRTL ? 'left' : 'right',
+    textAlign: 'right', // دائماً من اليمين للعربية
     letterSpacing: 0.5,
   },
   placeholderText: {
@@ -310,7 +310,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   modalHeader: {
-    flexDirection: I18nManager.isRTL ? 'row' : 'row-reverse',
+    flexDirection: 'row-reverse', // دائماً من اليمين لليسار للعربية
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 20,
