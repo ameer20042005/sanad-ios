@@ -2,10 +2,10 @@
   "expo": {
     "name": "سند",
     "slug": "sanad",
-    "version": "1.0.2",
+    "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/appLogo.png",
-    "scheme": "sanad",
+    "scheme": "ana-telecom",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
@@ -18,8 +18,8 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "buildNumber": "6",
-      "bundleIdentifier": "com.ameerwisam.sanad",
+      "buildNumber": "1",
+      "bundleIdentifier": "com.anatelecom.sanad",
       "infoPlist": {
         "UIBackgroundModes": [
           "remote-notification"
