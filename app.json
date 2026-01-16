@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "default",
     "icon": "./assets/appLogo.png",
-    "scheme": "sanad",
+    "scheme": "ana-telecom",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
