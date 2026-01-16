@@ -7,11 +7,13 @@ import {
   Image,
   ScrollView,
   Alert,
+  Linking,
 } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AdBanner from '@/components/AdBanner';
 import { useAuth } from '@/contexts/AuthContext';
+import * as WebBrowser from 'expo-web-browser';
 
 export default function HomeScreen() {
   const { isGuest } = useAuth();
@@ -224,6 +226,44 @@ export default function HomeScreen() {
                 <Text style={styles.bulletPoint}>
                   • تجنب رفع أشياء ثقيلة باليد المستخدمة في السحب لبضع ساعات.
                 </Text>
+              </View>
+            </View>
+
+            {/* Sources and References */}
+            <View style={[styles.guidelineCard, styles.sourcesCard]}>
+              <View style={styles.cardHeader}>
+                <Text style={styles.cardEmoji}>📚</Text>
+                <Text style={styles.cardTitle}>المصادر والمراجع</Text>
+              </View>
+              <View style={styles.cardContent}>
+                <Text style={styles.sourcesDisclaimer}>
+                  المعلومات الطبية في هذا التطبيق مستندة إلى المصادر الرسمية
+                  التالية:
+                </Text>
+                <TouchableOpacity
+                  style={styles.sourceLink}
+                  onPress={() =>
+                    WebBrowser.openBrowserAsync(
+                      'https://www.moh.gov.sa/HealthAwareness/EducationalContent/Donation/Pages/conditions.aspx'
+                    )
+                  }
+                >
+                  <Text style={styles.sourceLinkText}>
+                    🏥 وزارة الصحة السعودية - شروط التبرع بالدم
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.sourceLink}
+                  onPress={() =>
+                    WebBrowser.openBrowserAsync(
+                      'https://www.who.int/publications/i/item/9789241548519'
+                    )
+                  }
+                >
+                  <Text style={styles.sourceLinkText}>
+                    🌍 منظمة الصحة العالمية - إرشادات التبرع بالدم
+                  </Text>
+                </TouchableOpacity>
               </View>
             </View>
           </View>
@@ -481,5 +521,30 @@ const styles = StyleSheet.create({
     color: '#1F2937',
     marginBottom: 6,
     textAlign: 'left',
+  },
+  sourcesCard: {
+    borderLeftColor: '#2563EB',
+  },
+  sourcesDisclaimer: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'left',
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  sourceLink: {
+    backgroundColor: '#EFF6FF',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: '#BFDBFE',
+  },
+  sourceLinkText: {
+    fontSize: 14,
+    color: '#1D4ED8',
+    fontWeight: '600',
+    textAlign: 'left',
+    lineHeight: 20,
   },
 });

@@ -21,20 +21,24 @@ export default function AuthScreen() {
   const [showNoInternetModal, setShowNoInternetModal] = useState(false);
   const { signInWithPhone, continueAsGuest } = useAuth();
   const { hasInternetConnection } = useNetworkStatus();
-  const handleGuest = async () => {
+  const handleDemoAccount = async () => {
     try {
-      console.log('🔵 بدء التصفح كضيف...');
+      console.log('🔵 بدء تسجيل الدخول بحساب Demo...');
       setLoading(true);
-      await continueAsGuest();
-      console.log('✅ تم التصفح كضيف، الانتقال إلى التطبيق');
-      
-      // تأخير بسيط للتأكد من تحديث الحالة
-      setTimeout(() => {
+      const demoPhone = '07811111111';
+      const result = await signInWithPhone(demoPhone);
+
+      if (result.success) {
+        console.log('✅ تم تسجيل الدخول بحساب Demo');
         router.replace('/(tabs)');
-      }, 100);
+      } else if (result.needsRegistration) {
+        Alert.alert('خطأ', 'حساب Demo غير مسجل في النظام.');
+      } else {
+        Alert.alert('خطأ', result.error || 'تعذر تسجيل الدخول بحساب Demo');
+      }
     } catch (error) {
-      console.error('❌ خطأ في handleGuest:', error);
-      Alert.alert('خطأ', 'تعذر تفعيل وضع الضيف، يرجى المحاولة مرة أخرى.');
+      console.error('❌ خطأ في handleDemoAccount:', error);
+      Alert.alert('خطأ', 'تعذر تسجيل الدخول بحساب Demo، يرجى المحاولة مرة أخرى.');
     } finally {
       setLoading(false);
     }
@@ -63,7 +67,7 @@ export default function AuthScreen() {
     setLoading(true);
     try {
       const result = await signInWithPhone(phone.trim());
-      
+
       if (result.success) {
         Alert.alert('نجح', 'تم تسجيل الدخول بنجاح');
         router.replace('/(tabs)');
@@ -103,8 +107,8 @@ export default function AuthScreen() {
         <View style={styles.content}>
           {/* شعار التطبيق */}
           <View style={styles.logoContainer}>
-            <Image 
-              source={require('@/assets/appLogo.png')} 
+            <Image
+              source={require('@/assets/appLogo.png')}
               style={styles.logoImage}
               resizeMode="contain"
             />
@@ -153,11 +157,11 @@ export default function AuthScreen() {
                 </Text>
               </TouchableOpacity>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.guestButton}
-                onPress={handleGuest}
+                onPress={handleDemoAccount}
               >
-                <Text style={styles.guestButtonText}>المتابعة كضيف</Text>
+                <Text style={styles.guestButtonText}>Demo Account</Text>
               </TouchableOpacity>
             </View>
           </View>
