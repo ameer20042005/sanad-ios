@@ -73,7 +73,7 @@ export default function BloodDonationFormScreen() {
 
   useEffect(() => {
     setupRTL();
-    
+
     // التحقق من وضع الضيف
     if (isGuest) {
       Alert.alert(
@@ -129,26 +129,14 @@ export default function BloodDonationFormScreen() {
   };
 
   const handleSubmit = async () => {
-    // التحقق من الاتصال بالإنترنت
-    if (!(await hasInternetConnection())) {
-      setShowNoInternetModal(true);
-      return;
-    }
-
-    // ✅ الحماية الأولى: منع الضيوف فوراً
-    if (isGuest) {
+    // ✅ الحماية الأولى: منع الضيوف فوراً (تحقق سريع بدون انتظار)
+    if (isGuest || !profile?.id) {
       Alert.alert(
         'تسجيل الدخول مطلوب ⚠️',
         'لإرسال طلب تبرع دم، يجب عليك تسجيل الدخول أو إنشاء حساب جديد.',
         [
-          {
-            text: 'إنشاء حساب',
-            onPress: () => router.replace('/register')
-          },
-          {
-            text: 'تسجيل الدخول',
-            onPress: () => router.replace('/login')
-          },
+          { text: 'إنشاء حساب', onPress: () => router.replace('/register') },
+          { text: 'تسجيل الدخول', onPress: () => router.replace('/login') },
           { text: 'إلغاء', style: 'cancel' }
         ]
       );
@@ -159,96 +147,49 @@ export default function BloodDonationFormScreen() {
 
     setIsLoading(true);
     try {
-      // ✅ الحماية الثانية: التحقق من المستخدم المسجل
-      const { profile: currentProfile } = await AuthManager.getCurrentUser();
-      
-      if (!currentProfile || !currentProfile.id) {
-        console.error('❌ محاولة إرسال طلب بدون ملف متبرع:', { currentProfile });
-        Alert.alert(
-          'تسجيل الدخول مطلوب',
-          'يجب تسجيل الدخول بحساب متبرع لإرسال طلب التبرع.',
-          [
-            { text: 'موافق', onPress: () => router.replace('/login') }
-          ]
-        );
-        return;
-      }
-      
-      // ✅ الحماية الثالثة: التأكد من وجود donor_id قبل الإدراج
-      if (!currentProfile.id) {
-        console.error('❌ donor_id غير موجود في الملف الشخصي');
-        Alert.alert('خطأ', 'حدث خطأ في التحقق من بيانات المستخدم. يرجى تسجيل الدخول مجدداً.');
-        return;
-      }
-      
       const insertObj = {
         name: formData.name.trim(),
         phone: formData.phone.trim(),
         governorate: formData.governorate,
         city: formData.city,
         blood_type: formData.bloodType,
-        donor_id: currentProfile.id, // ✅ لن يصل هنا إلا إذا كان donor_id موجود
+        donor_id: profile.id, // ✅ استخدام profile من Context مباشرة (أسرع)
       };
-      
+
       console.log('📤 إرسال طلب تبرع:', insertObj);
-      
+
       const { error } = await supabase
         .from('blood_donation_requests')
         .insert([insertObj]);
 
       if (error) {
         console.error('Error inserting request:', error);
-        // في حالة خطأ الشبكة، أظهر رسالة واضحة
         if (error.message?.includes('Network') || error.message?.includes('network') || error.message?.includes('fetch')) {
-          Alert.alert(
-            'لا يوجد اتصال بالإنترنت',
-            'لا يمكن إرسال الطلب بدون اتصال بالإنترنت. يرجى التحقق من الاتصال والمحاولة مرة أخرى.'
-          );
+          setShowNoInternetModal(true);
         } else {
           Alert.alert('خطأ', 'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.');
         }
         return;
       }
 
-      // إرسال إشعار محلي فوري
-      try {
-        await sendBloodDonationRequestNotification(
-          formData.name.trim(),
-          formData.bloodType,
-          `${formData.city}، ${formData.governorate}`,
-          formData.phone.trim()
-        );
-        console.log('تم إرسال الإشعار بنجاح');
-      } catch (notifError) {
-        console.error('خطأ في إرسال الإشعار:', notifError);
-        // لا نعرض رسالة خطأ للمستخدم لأن الطلب تم إرساله بنجاح
-      }
+      // ✅ إرسال الإشعار في الخلفية (non-blocking) - لا ننتظره
+      sendBloodDonationRequestNotification(
+        formData.name.trim(),
+        formData.bloodType,
+        `${formData.city}، ${formData.governorate}`,
+        formData.phone.trim()
+      ).catch(err => console.warn('خطأ في الإشعار (غير حرج):', err));
 
+      // ✅ عرض رسالة النجاح فوراً
       Alert.alert(
-        'نجح الإرسال ✅', 
-        'تم إرسال الطلب بنجاح! يمكنك مشاهدة جميع الطلبات من تاب "طلبات التبرع"',
+        'نجح الإرسال ✅',
+        'تم إرسال الطلب بنجاح!',
         [
           {
             text: 'موافق',
             onPress: () => {
-              // Clear form
-              setFormData({
-                name: '',
-                phone: '',
-                governorate: '',
-                city: '',
-                bloodType: '',
-              });
-              // Navigate back
-              try {
-                if (router.canGoBack && router.canGoBack()) {
-                  NavigationHelper.safeGoBack();
-                } else {
-                  NavigationHelper.goHome();
-                }
-              } catch (error) {
-                NavigationHelper.goHome();
-              }
+              setFormData({ name: '', phone: '', governorate: '', city: '', bloodType: '' });
+              NavigationHelper.safeGoBack();
             }
           }
         ]
@@ -273,83 +214,83 @@ export default function BloodDonationFormScreen() {
       <ScrollView style={[styles.container, { backgroundColor: theme.colors.background }]}
         contentContainerStyle={{ paddingBottom: 120 }}
         showsVerticalScrollIndicator={false}>
-      <Surface style={styles.header} elevation={1}>
-        <Droplet size={32} color={theme.colors.primary} />
-        <Title style={[styles.title, { color: theme.colors.onSurface }]}>طلب تبرع دم</Title>
-        <Paragraph style={styles.subtitle}>املأ البيانات التالية لإرسال طلب تبرع دم</Paragraph>
-      </Surface>
+        <Surface style={styles.header} elevation={1}>
+          <Droplet size={32} color={theme.colors.primary} />
+          <Title style={[styles.title, { color: theme.colors.onSurface }]}>طلب تبرع دم</Title>
+          <Paragraph style={styles.subtitle}>املأ البيانات التالية لإرسال طلب تبرع دم</Paragraph>
+        </Surface>
 
-      <Card style={styles.form}>
-        <Card.Content>
-          {/* Name Input */}
-          <View style={styles.inputContainer}>
-            <TextInput
-              label="الاسم الكامل"
-              value={formData.name}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
-              mode="outlined"
-              style={[styles.textInput, { writingDirection: 'rtl' }]}
-              right={<TextInput.Icon icon={() => <User size={20} color={theme.colors.primary} />} />}
+        <Card style={styles.form}>
+          <Card.Content>
+            {/* Name Input */}
+            <View style={styles.inputContainer}>
+              <TextInput
+                label="الاسم الكامل"
+                value={formData.name}
+                onChangeText={(text) => setFormData(prev => ({ ...prev, name: text }))}
+                mode="outlined"
+                style={[styles.textInput, { writingDirection: 'rtl' }]}
+                right={<TextInput.Icon icon={() => <User size={20} color={theme.colors.primary} />} />}
+              />
+            </View>
+
+            {/* Phone Input */}
+            <View style={styles.inputContainer}>
+              <TextInput
+                label="رقم الهاتف"
+                value={formData.phone}
+                onChangeText={(text) => setFormData(prev => ({ ...prev, phone: text }))}
+                mode="outlined"
+                keyboardType="phone-pad"
+                style={[styles.textInput, { writingDirection: 'rtl' }]}
+                placeholder="07xxxxxxxxx"
+                right={<TextInput.Icon icon={() => <Phone size={20} color={theme.colors.primary} />} />}
+              />
+            </View>
+
+            {/* Governorate Picker */}
+            <ListPicker
+              label="المحافظة"
+              value={formData.governorate}
+              placeholder="اختر المحافظة"
+              options={Object.keys(iraqiLocations).map(gov => ({ label: gov, value: gov }))}
+              onChange={(value: string) => setFormData(prev => ({ ...prev, governorate: value }))}
+              title="اختر المحافظة"
             />
-          </View>
 
-          {/* Phone Input */}
-          <View style={styles.inputContainer}>
-            <TextInput
-              label="رقم الهاتف"
-              value={formData.phone}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, phone: text }))}
-              mode="outlined"
-              keyboardType="phone-pad"
-              style={[styles.textInput, { writingDirection: 'rtl' }]}
-              placeholder="07xxxxxxxxx"
-              right={<TextInput.Icon icon={() => <Phone size={20} color={theme.colors.primary} />} />}
+            {/* City Picker */}
+            <ListPicker
+              label="المدينة"
+              value={formData.city}
+              placeholder="اختر المدينة"
+              options={availableCities.map(city => ({ label: city, value: city }))}
+              onChange={(value: string) => setFormData(prev => ({ ...prev, city: value }))}
+              disabled={!formData.governorate}
+              title="اختر المدينة"
             />
-          </View>
 
-          {/* Governorate Picker */}
-          <ListPicker
-            label="المحافظة"
-            value={formData.governorate}
-            placeholder="اختر المحافظة"
-            options={Object.keys(iraqiLocations).map(gov => ({ label: gov, value: gov }))}
-            onChange={(value: string) => setFormData(prev => ({ ...prev, governorate: value }))}
-            title="اختر المحافظة"
-          />
+            {/* Blood Type Picker */}
+            <ListPicker
+              label="فصيلة الدم"
+              value={formData.bloodType}
+              placeholder="اختر فصيلة الدم"
+              options={bloodTypes.map(type => ({ label: type, value: type }))}
+              onChange={(value: string) => setFormData(prev => ({ ...prev, bloodType: value }))}
+              title="اختر فصيلة الدم"
+            />
 
-          {/* City Picker */}
-          <ListPicker
-            label="المدينة"
-            value={formData.city}
-            placeholder="اختر المدينة"
-            options={availableCities.map(city => ({ label: city, value: city }))}
-            onChange={(value: string) => setFormData(prev => ({ ...prev, city: value }))}
-            disabled={!formData.governorate}
-            title="اختر المدينة"
-          />
-
-          {/* Blood Type Picker */}
-          <ListPicker
-            label="فصيلة الدم"
-            value={formData.bloodType}
-            placeholder="اختر فصيلة الدم"
-            options={bloodTypes.map(type => ({ label: type, value: type }))}
-            onChange={(value: string) => setFormData(prev => ({ ...prev, bloodType: value }))}
-            title="اختر فصيلة الدم"
-          />
-
-          {/* Submit Button */}
-          <Button
-            mode="contained"
-            onPress={handleSubmit}
-            loading={isLoading}
-            disabled={isLoading}
-            style={styles.submitButton}
-            labelStyle={styles.submitButtonText}>
-            إرسال الطلب
-          </Button>
-        </Card.Content>
-      </Card>
+            {/* Submit Button */}
+            <Button
+              mode="contained"
+              onPress={handleSubmit}
+              loading={isLoading}
+              disabled={isLoading}
+              style={styles.submitButton}
+              labelStyle={styles.submitButtonText}>
+              إرسال الطلب
+            </Button>
+          </Card.Content>
+        </Card>
       </ScrollView>
       <NoInternetModal
         visible={showNoInternetModal}

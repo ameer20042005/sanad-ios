@@ -254,21 +254,13 @@ export async function setBadgeCount(count: number) {
 /**
  * إعداد Background Notification Handler
  * يسمح باستلام الإشعارات عندما يكون التطبيق في الخلفية أو مغلق
+ * ملاحظة: setNotificationHandler يتم استدعاؤه مرة واحدة فقط في أعلى الملف
+ * لتجنب تكرار الإشعارات
  */
 export function setupBackgroundNotificationHandler() {
-  Notifications.setNotificationHandler({
-    handleNotification: async (notification) => {
-      console.log('📩 استلام إشعار في الخلفية:', notification);
-      
-      return {
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-        shouldShowBanner: true,
-        shouldShowList: true,
-      };
-    },
-  });
+  // لا حاجة لاستدعاء setNotificationHandler هنا لأنه تم استدعاؤه بالفعل
+  // في أعلى الملف. هذه الدالة موجودة للتوافق مع الكود القديم
+  console.log('✅ Background Notification Handler جاهز (تم الإعداد في أعلى الملف)');
 }
 
 /**
