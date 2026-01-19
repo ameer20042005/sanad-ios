@@ -198,7 +198,15 @@ export default function BloodDonationFormScreen() {
 
       if (error) {
         console.error('Error inserting request:', error);
-        Alert.alert('خطأ', 'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.');
+        // في حالة خطأ الشبكة، أظهر رسالة واضحة
+        if (error.message?.includes('Network') || error.message?.includes('network') || error.message?.includes('fetch')) {
+          Alert.alert(
+            'لا يوجد اتصال بالإنترنت',
+            'لا يمكن إرسال الطلب بدون اتصال بالإنترنت. يرجى التحقق من الاتصال والمحاولة مرة أخرى.'
+          );
+        } else {
+          Alert.alert('خطأ', 'حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.');
+        }
         return;
       }
 

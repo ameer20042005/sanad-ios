@@ -59,11 +59,26 @@ export default function CampaignsScreen() {
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        // في حالة خطأ الشبكة، أظهر رسالة واضحة
+        if (error.message?.includes('Network') || error.message?.includes('network') || error.message?.includes('fetch')) {
+          setShowNoInternetModal(true);
+          setCampaigns([]); // إفراغ القائمة عند عدم وجود اتصال
+          return;
+        }
+        throw error;
+      }
 
       setCampaigns(data || []);
     } catch (error: any) {
-      Alert.alert('خطأ', error.message);
+      console.error('Error fetching campaigns:', error);
+      // في حالة خطأ الشبكة، أظهر رسالة واضحة
+      if (error?.message?.includes('Network') || error?.message?.includes('network') || error?.message?.includes('fetch')) {
+        setShowNoInternetModal(true);
+        setCampaigns([]);
+      } else {
+        Alert.alert('خطأ', error.message || 'حدث خطأ أثناء جلب الحملات');
+      }
     } finally {
       setLoading(false);
     }

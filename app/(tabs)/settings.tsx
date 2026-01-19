@@ -22,6 +22,7 @@ import {
   Info,
   Droplet,
   Heart,
+  LogIn,
 } from 'lucide-react-native';
 import AdBanner from '@/components/AdBanner';
 import { supabase } from '@/lib/supabase';
@@ -33,6 +34,8 @@ import NoInternetModal from '@/components/NoInternetModal';
 
 export default function SettingsScreen() {
   const { profile, isGuest } = useAuth();
+  // التحقق من أن الحساب هو الحساب الافتراضي (Demo)
+  const isDefaultAccount = profile?.id === 'default-account-id';
   const [userStatus, setUserStatus] = useState<{
     isLoggedIn: boolean;
     hasDonorProfile: boolean;
@@ -201,6 +204,27 @@ export default function SettingsScreen() {
             title: 'جاري التحميل...',
             subtitle: 'يتم فحص حالة المستخدم',
             onPress: () => {},
+          },
+        ],
+      };
+    }
+
+    // إذا كان المستخدم في وضع Demo (Guest) أو يستخدم الحساب الافتراضي، أظهر زر البروفايل وزر تسجيل الدخول
+    if (isGuest || isDefaultAccount) {
+      return {
+        title: 'الحساب',
+        items: [
+          {
+            icon: User,
+            title: 'الملف الشخصي',
+            subtitle: isDefaultAccount ? 'عرض ملفك الشخصي (حساب Demo)' : 'عرض ملفك الشخصي (وضع الضيف)',
+            onPress: () => router.push('/profile'),
+          },
+          {
+            icon: LogIn,
+            title: 'تسجيل الدخول',
+            subtitle: 'تسجيل الدخول بحساب حقيقي للخروج من وضع Demo',
+            onPress: () => router.push('/login'),
           },
         ],
       };

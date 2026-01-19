@@ -139,6 +139,15 @@ export default function BloodDonationListScreen() {
 
   const fetchRequests = async () => {
     try {
+      // التحقق من الاتصال بالإنترنت
+      const hasInternet = await hasInternetConnection();
+      if (!hasInternet) {
+        console.warn('⚠️ لا يوجد اتصال بالإنترنت - لا يمكن جلب الطلبات');
+        setShowNoInternetModal(true);
+        setRequests([]); // إفراغ القائمة عند عدم وجود اتصال
+        return;
+      }
+
       const { data, error } = await supabase
         .from('blood_donation_requests')
         .select('*')
@@ -146,12 +155,20 @@ export default function BloodDonationListScreen() {
 
       if (error) {
         console.error('Error fetching requests:', error);
+        // في حالة خطأ الشبكة، أظهر رسالة واضحة
+        if (error.message?.includes('Network') || error.message?.includes('network') || error.message?.includes('fetch')) {
+          setShowNoInternetModal(true);
+        }
         return;
       }
 
       setRequests(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
+      // في حالة خطأ الشبكة، أظهر رسالة واضحة
+      if (error?.message?.includes('Network') || error?.message?.includes('network') || error?.message?.includes('fetch')) {
+        setShowNoInternetModal(true);
+      }
     } finally {
       setIsLoading(false);
       setRefreshing(false);

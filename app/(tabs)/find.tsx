@@ -273,6 +273,21 @@ export default function FindDonorScreen() {
       const { data, error } = await query;
 
       if (error) {
+        // في حالة خطأ الشبكة، أظهر رسالة واضحة ولا تسجل كخطأ
+        const isNetworkError = error.message?.includes('Network') || 
+                               error.message?.includes('network') || 
+                               error.message?.includes('fetch') ||
+                               error.details?.includes('Network') ||
+                               error.details?.includes('network');
+        
+        if (isNetworkError) {
+          console.warn('⚠️ خطأ في الشبكة أثناء البحث:', error.message || error.details);
+          setShowNoInternetModal(true);
+          setLoading(false);
+          return;
+        }
+        
+        // فقط سجل الأخطاء الأخرى (غير أخطاء الشبكة)
         console.error('Search error:', error);
         
         // إذا فشل بسبب RLS، جرب بدون أي مرشحات
@@ -328,6 +343,21 @@ export default function FindDonorScreen() {
       setDonors(activeDonors);
       
     } catch (error: any) {
+      // التحقق من نوع الخطأ قبل التسجيل
+      const isNetworkError = error?.message?.includes('Network') || 
+                             error?.message?.includes('network') || 
+                             error?.message?.includes('fetch') ||
+                             error?.details?.includes('Network') ||
+                             error?.details?.includes('network');
+      
+      if (isNetworkError) {
+        console.warn('⚠️ خطأ في الشبكة أثناء البحث:', error.message || error.details);
+        setShowNoInternetModal(true);
+        setLoading(false);
+        return;
+      }
+      
+      // فقط سجل الأخطاء الأخرى (غير أخطاء الشبكة)
       console.error('Final search error:', error);
       
       // إذا كانت مشكلة RLS أو صلاحيات

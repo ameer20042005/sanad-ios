@@ -6,7 +6,9 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { WifiOff, X } from 'lucide-react-native';
 
 interface NoInternetModalProps {
@@ -55,29 +57,33 @@ export default function NoInternetModal({ visible, onClose }: NoInternetModalPro
       transparent={true}
       animationType="none"
       onRequestClose={onClose}
+      statusBarTranslucent={Platform.OS === 'android'}
     >
-      <View style={styles.overlay}>
-        <Animated.View
-          style={[
-            styles.modalContainer,
-            {
-              opacity: fadeAnim,
-              transform: [{ scale: scaleAnim }],
-            },
-          ]}
-        >
-          {/* زر الإغلاق */}
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={onClose}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.overlay}>
+          <Animated.View
+            style={[
+              styles.modalContainer,
+              {
+                opacity: fadeAnim,
+                transform: [{ scale: scaleAnim }],
+              },
+            ]}
           >
-            <X size={24} color="#6B7280" />
-          </TouchableOpacity>
+            {/* زر الإغلاق */}
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={onClose}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityLabel="إغلاق"
+              accessibilityRole="button"
+            >
+              <X size={24} color="#6B7280" strokeWidth={2} />
+            </TouchableOpacity>
 
           {/* أيقونة عدم الاتصال */}
           <View style={styles.iconContainer}>
-            <WifiOff size={64} color="#EF4444" />
+            <WifiOff size={64} color="#EF4444" strokeWidth={2} />
           </View>
 
           {/* العنوان */}
@@ -99,17 +105,27 @@ export default function NoInternetModal({ visible, onClose }: NoInternetModalPro
           </TouchableOpacity>
         </Animated.View>
       </View>
+      </SafeAreaView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+  },
   overlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
+    ...Platform.select({
+      ios: {
+        paddingTop: 0,
+        paddingBottom: 0,
+      },
+    }),
   },
   modalContainer: {
     backgroundColor: '#FFFFFF',
@@ -126,13 +142,28 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 20,
     elevation: 10,
+    ...Platform.select({
+      ios: {
+        shadowOpacity: 0.3,
+        shadowRadius: 15,
+      },
+      android: {
+        elevation: 10,
+      },
+    }),
   },
   closeButton: {
     position: 'absolute',
     top: 16,
     left: 16,
     padding: 8,
-    zIndex: 1,
+    zIndex: 10,
+    ...Platform.select({
+      ios: {
+        top: 12,
+        left: 12,
+      },
+    }),
   },
   iconContainer: {
     width: 120,

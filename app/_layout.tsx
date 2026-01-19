@@ -22,10 +22,39 @@ SplashScreen.preventAutoHideAsync();
 if (Platform.OS !== 'web') {
   const originalConsoleError = console.error;
   console.error = (...args: any[]) => {
-    const message = args.join(' ').toLowerCase();
-    if (message.includes('keep awake') || message.includes('unable to activate') || message.includes('uncaught (in promise')) {
-      console.warn('Suppressed keep-awake error:', ...args);
-      return;
+    // تحويل جميع الوسائط إلى سلسلة نصية للتحقق
+    const message = args
+      .map(arg => {
+        if (typeof arg === 'object' && arg !== null) {
+          // إذا كان كائن خطأ، افحص message و details
+          const errorMessage = arg?.message || '';
+          const errorDetails = arg?.details || '';
+          const errorCode = arg?.code || '';
+          return `${errorMessage} ${errorDetails} ${errorCode}`.toLowerCase();
+        }
+        return String(arg).toLowerCase();
+      })
+      .join(' ');
+    
+    // قمع أخطاء غير حرجة
+    if (
+      message.includes('keep awake') || 
+      message.includes('unable to activate') || 
+      message.includes('uncaught (in promise)') ||
+      message.includes('network request failed') ||
+      message.includes('network error') ||
+      message.includes('fetch failed') ||
+      message.includes('typeerror: network') ||
+      message.includes('search error') && (message.includes('network') || message.includes('fetch'))
+    ) {
+      // فقط قمع أخطاء الشبكة غير الحرجة، لكن سجلها كتحذير
+      if (message.includes('network') || message.includes('fetch')) {
+        // قمع أخطاء الشبكة تماماً لأنها غير حرجة وتم معالجتها في الكود
+        return;
+      } else {
+        console.warn('Suppressed keep-awake error:', ...args);
+        return;
+      }
     }
     originalConsoleError(...args);
   };
@@ -34,8 +63,19 @@ if (Platform.OS !== 'web') {
   if (typeof globalThis !== 'undefined' && globalThis.addEventListener) {
     globalThis.addEventListener('unhandledrejection', (event: any) => {
       const message = event.reason?.message?.toLowerCase() || '';
-      if (message.includes('keep awake') || message.includes('unable to activate')) {
-        console.warn('Suppressed unhandled keep-awake promise rejection:', event.reason);
+      if (
+        message.includes('keep awake') || 
+        message.includes('unable to activate') ||
+        message.includes('network request failed') ||
+        message.includes('network error') ||
+        message.includes('fetch failed')
+      ) {
+        // قمع أخطاء الشبكة غير الحرجة
+        if (message.includes('network') || message.includes('fetch')) {
+          console.warn('⚠️ خطأ في الشبكة غير معالج (غير حرج):', event.reason);
+        } else {
+          console.warn('Suppressed unhandled keep-awake promise rejection:', event.reason);
+        }
         event.preventDefault();
         return;
       }

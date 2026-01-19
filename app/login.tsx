@@ -26,17 +26,16 @@ export default function AuthScreen() {
       console.log('🔵 بدء تسجيل الدخول بحساب Demo...');
       setLoading(true);
       const demoPhone = '07000001001';
-      const result = await signInWithPhone(demoPhone);
+      // استخدام الحساب الافتراضي مباشرة عند الضغط على زر Demo
+      const result = await signInWithPhone(demoPhone, true);
 
       if (result.success) {
         console.log('✅ تم تسجيل الدخول بحساب Demo');
         router.replace('/(tabs)');
-      } else if (result.needsRegistration) {
-        Alert.alert('خطأ', 'حساب Demo غير مسجل في النظام.');
       } else {
         Alert.alert('خطأ', result.error || 'تعذر تسجيل الدخول بحساب Demo');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ خطأ في handleDemoAccount:', error);
       Alert.alert('خطأ', 'تعذر تسجيل الدخول بحساب Demo، يرجى المحاولة مرة أخرى.');
     } finally {
@@ -46,12 +45,6 @@ export default function AuthScreen() {
 
 
   const handleAuth = async () => {
-    // التحقق من الاتصال بالإنترنت
-    if (!(await hasInternetConnection())) {
-      setShowNoInternetModal(true);
-      return;
-    }
-
     if (!phone) {
       Alert.alert('خطأ', 'يرجى إدخال رقم الهاتف');
       return;
@@ -64,9 +57,16 @@ export default function AuthScreen() {
       return;
     }
 
+    // التحقق من الاتصال بالإنترنت للتسجيل الطبيعي
+    if (!(await hasInternetConnection())) {
+      setShowNoInternetModal(true);
+      return;
+    }
+
     setLoading(true);
     try {
-      const result = await signInWithPhone(phone.trim());
+      const normalizedPhone = phone.trim();
+      const result = await signInWithPhone(normalizedPhone, false);
 
       if (result.success) {
         Alert.alert('نجح', 'تم تسجيل الدخول بنجاح');
@@ -91,6 +91,7 @@ export default function AuthScreen() {
         Alert.alert('خطأ', result.error || 'تعذر تسجيل الدخول');
       }
     } catch (error: any) {
+      console.error('❌ خطأ في تسجيل الدخول:', error);
       Alert.alert('خطأ', error?.message || 'حدث خطأ غير متوقع');
     } finally {
       setLoading(false);

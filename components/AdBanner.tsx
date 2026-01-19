@@ -44,7 +44,16 @@ export default function AdBanner({ style }: AdBannerProps) {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.log('Error fetching ads:', error);
+        // قمع أخطاء الشبكة - غير حرجة
+        const isNetworkError = error.message?.includes('Network') || 
+                               error.message?.includes('network') || 
+                               error.message?.includes('fetch') ||
+                               error.details?.includes('Network') ||
+                               error.details?.includes('network');
+        
+        if (!isNetworkError) {
+          console.log('Error fetching ads:', error);
+        }
         setLoading(false);
         return;
       }
@@ -54,8 +63,17 @@ export default function AdBanner({ style }: AdBannerProps) {
         // تسجيل مشاهدة للإعلان الأول
         await trackAdView(data[0].id);
       }
-    } catch (error) {
-      console.log('Error fetching ads:', error);
+    } catch (error: any) {
+      // قمع أخطاء الشبكة - غير حرجة
+      const isNetworkError = error?.message?.includes('Network') || 
+                             error?.message?.includes('network') || 
+                             error?.message?.includes('fetch') ||
+                             error?.details?.includes('Network') ||
+                             error?.details?.includes('network');
+      
+      if (!isNetworkError) {
+        console.log('Error fetching ads:', error);
+      }
     } finally {
       setLoading(false);
     }

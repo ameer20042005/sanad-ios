@@ -21,10 +21,19 @@ export default function TabLayout() {
 
   // التحقق من المصادقة - السماح للضيوف بالوصول
   useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/26cd61a3-4308-4d10-b7ac-fbdcbce75097',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/(tabs)/_layout.tsx:23',message:'TabLayout auth check',data:{loading,hasProfile:!!profile,isGuest},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
     if (!loading && !profile && !isGuest) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/26cd61a3-4308-4d10-b7ac-fbdcbce75097',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/(tabs)/_layout.tsx:26',message:'TabLayout redirecting to login',data:{loading,hasProfile:false,isGuest:false},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
       console.log('🔒 [TabLayout] لا يوجد مستخدم أو ضيف، العودة لتسجيل الدخول');
       router.replace('/login');
     } else if (!loading) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/26cd61a3-4308-4d10-b7ac-fbdcbce75097',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/(tabs)/_layout.tsx:29',message:'TabLayout access allowed',data:{hasProfile:!!profile,isGuest},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
       console.log('✅ [TabLayout] الوصول مسموح:', { profile: !!profile, isGuest });
     }
   }, [profile, loading, isGuest]);
