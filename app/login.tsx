@@ -25,7 +25,7 @@ export default function AuthScreen() {
     try {
       console.log('🔵 بدء تسجيل الدخول بحساب Demo...');
       setLoading(true);
-      const demoPhone = '07811111111';
+      const demoPhone = '07000001001';
       const result = await signInWithPhone(demoPhone);
 
       if (result.success) {
