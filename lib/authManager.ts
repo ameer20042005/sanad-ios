@@ -33,10 +33,23 @@ const DEFAULT_ACCOUNT: DonorProfile = {
 async function checkInternetConnection(): Promise<boolean> {
   try {
     const state = await NetInfo.fetch();
-    return state.isConnected === true && state.isInternetReachable === true;
+    console.log('🌐 AuthManager checkInternetConnection:', {
+      isConnected: state.isConnected,
+      isInternetReachable: state.isInternetReachable,
+      type: state.type,
+      details: state.details
+    });
+    
+    // في iOS، isInternetReachable غير موثوق وقد يكون null حتى مع وجود اتصال
+    // لذلك نعتمد فقط على isConnected كمعيار أساسي
+    // إذا كان isConnected === true، نعتبر أن الإنترنت متاح بغض النظر عن isInternetReachable
+    const result = state.isConnected === true;
+    console.log('✅ AuthManager checkInternetConnection result:', result);
+    return result;
   } catch (error) {
     console.warn('⚠️ خطأ في التحقق من الاتصال:', error);
-    return false;
+    // في حالة الخطأ، نفترض وجود اتصال لتجنب منع المستخدم
+    return true;
   }
 }
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Linking,
-  I18nManager,
 } from 'react-native';
 import {
   Card,
@@ -31,19 +30,26 @@ import {
   MessageCircle,
   Phone
 } from 'lucide-react-native';
-
-// Disable RTL support - using LTR layout
-I18nManager.allowRTL(false);
-I18nManager.forceRTL(false);
+import { setupRTL } from '@/lib/rtl';
 
 export default function AboutScreen() {
+  // تفعيل RTL بشكل دائم
+  useEffect(() => {
+    setupRTL();
+  }, []);
   const appVersion = '15.2.0';
   const developers = [
+    {
+      name: 'عمار صائب الخزاعي',
+      role: 'المؤسس والمالك',
+      email: '',
+      phone: '',
+    },
     {
       name: 'الدكتور ذو الفقار حسين منديل',
       role: 'الدكتور المشرف على التطبيق',
       email: '',
-      phone: '07711768905',
+      phone: '',
     },
     {
       name: 'المهندس امير وسام',
@@ -51,6 +57,7 @@ export default function AboutScreen() {
       email: 'ameer20051975@gmail.com',
       phone: '07811109151',
     }
+
   ];
 
   const features = [
@@ -187,27 +194,31 @@ export default function AboutScreen() {
                   <Text style={styles.developerName}>{dev.name}</Text>
                   <Text style={styles.developerRole}>{dev.role}</Text>
                 </View>
-                <View style={styles.contactButtonsContainer}>
-                  <TouchableOpacity
-                    style={styles.emailButton}
-                    onPress={() => handleEmailPress(dev.email)}>
-                    <Mail size={20} color="#DC2626" />
-                  </TouchableOpacity>
-                  {dev.phone && (
-                    <>
+                {(dev.email || dev.phone) && (
+                  <View style={styles.contactButtonsContainer}>
+                    {dev.email && (
                       <TouchableOpacity
-                        style={styles.phoneButton}
-                        onPress={() => handlePhoneCall(dev.phone)}>
-                        <Phone size={20} color="#3B82F6" />
+                        style={styles.emailButton}
+                        onPress={() => handleEmailPress(dev.email)}>
+                        <Mail size={20} color="#DC2626" />
                       </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.whatsappButton}
-                        onPress={() => handleWhatsAppPress(dev.phone)}>
-                        <MessageCircle size={20} color="#25D366" />
-                      </TouchableOpacity>
-                    </>
-                  )}
-                </View>
+                    )}
+                    {dev.phone && (
+                      <>
+                        <TouchableOpacity
+                          style={styles.phoneButton}
+                          onPress={() => handlePhoneCall(dev.phone)}>
+                          <Phone size={20} color="#3B82F6" />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.whatsappButton}
+                          onPress={() => handleWhatsAppPress(dev.phone)}>
+                          <MessageCircle size={20} color="#25D366" />
+                        </TouchableOpacity>
+                      </>
+                    )}
+                  </View>
+                )}
                 {dev.phone && (
                   <Text style={styles.developerPhoneSeparate}>{dev.phone}</Text>
                 )}

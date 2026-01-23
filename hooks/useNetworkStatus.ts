@@ -27,9 +27,21 @@ export function useNetworkStatus() {
   const hasInternetConnection = async () => {
     try {
       const state = await NetInfo.fetch();
-      return state.isConnected === true && state.isInternetReachable === true;
+      console.log('🌐 hasInternetConnection check:', {
+        isConnected: state.isConnected,
+        isInternetReachable: state.isInternetReachable,
+        type: state.type,
+        details: state.details
+      });
+      
+      // في iOS، isInternetReachable غير موثوق وقد يكون null حتى مع وجود اتصال
+      // لذلك نعتمد فقط على isConnected كمعيار أساسي
+      // إذا كان isConnected === true، نعتبر أن الإنترنت متاح بغض النظر عن isInternetReachable
+      const result = state.isConnected === true;
+      console.log('✅ hasInternetConnection result:', result);
+      return result;
     } catch (error) {
-      console.error('Error checking network status:', error);
+      console.error('❌ Error checking network status:', error);
       // في حالة الخطأ، نفترض وجود اتصال لتجنب منع المستخدم
       return true;
     }

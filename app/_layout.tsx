@@ -15,6 +15,9 @@ import {
   setupBackgroundNotificationHandler 
 } from '@/lib/notificationService';
 
+// تفعيل RTL في بداية التطبيق مباشرة (قبل أي شيء آخر)
+setupRTL();
+
 // منع إخفاء Splash Screen تلقائياً حتى نكون جاهزين
 SplashScreen.preventAutoHideAsync();
 

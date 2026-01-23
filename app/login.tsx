@@ -159,7 +159,7 @@ export default function AuthScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.guestButton}
+                style={[styles.guestButton, { display: 'none' }]}
                 onPress={handleDemoAccount}
               >
                 <Text style={styles.guestButtonText}>Demo Account</Text>
